@@ -1,0 +1,121 @@
+Language Specification:
+
+ 1 .Language Definition:
+
+  1.1 Alphabet:
+
+  1.1.a. Upper (A-Z) and lower case letters (a-z) of the English alphabet
+
+      b. Underline character '_';
+
+      c. Decimal digits (0-9);
+
+  Lexic:
+
+      a. Special symbols, representing:
+
+- operators + - * / == < <= = >=
+
+- separators ( ) { } ;
+
+- reserved words:
+
+    int if else void cout cin while return using namespace std iostream include struct
+
+      b. identifiers
+
+  -a sequence of letters and  digits, such that the first character is a letter; the rule is:
+
+    identifier ::= letter | letter{letter}{digit}
+
+    letter ::= "A" | "B" | . ..| "Z" | "a" | "b" | ... | "z"
+
+    digit ::= "0" | "1" |...| "9"
+
+      c. constants
+
+1.integer - rule:
+
+      int:=digit{digit}
+
+2.character
+
+    char:='letter'
+
+3.string
+
+      string:=char{string}
+
+      char:=letter
+
+
+ 2.2 Syntax:
+
+The words - predefined tokens are specified between " and ":
+
+a) Sintactical rules:
+
+    program ::= headers main_function
+
+    headers ::= "#include" "<iostream>"  
+
+    main_function ::= "using namespace" "std" ";" "int main ()" "{" declarations stmt_list "return" "0" ";" "}"
+
+    declarations ::= declaration | structdecl | declaration declarations | structdecl declarations
+
+    declaration ::= "int" identifier_list ";" | "bool" identifier_list ";"
+
+    identifier_list ::= IDENTIFIER | IDENTIFIER "," identifier_list
+
+    structdecl ::= "struct" IDENTIFIER "{" memberdecls "}" ";"
+
+    memberdecls ::= declaration | declaration memberdecls
+
+    stmt ::= simplstmt | structstm
+    
+    stmt_list ::= stmt ";"| stmt ";" stmt_list
+
+    simplstmt ::= assignstmt | iostmt
+
+    assignstmt ::= IDENTIFIER "=" expression ";"
+
+    expression ::= expression "+" term | term
+
+    term ::= term "*" factor | factor
+
+    factor ::= "(" expression ")" | IDENTIFIER
+
+    iostmt ::= "cin" ">>" IDENTIFIER ";" | "cout" "<<" expression ";"
+
+
+
+    structstmt ::= ifstmt | whilestmt
+
+    ifstmt ::= "if" "(" condition ")" stmt ["else" stmt]
+
+    whilestmt ::= "while" "(" condition ")" stmt
+
+    condition ::= expression RELATION expression
+
+    RELATION ::= "<" | "<=" | "=" | "==" | ">=" | ">"
+
+
+PROGRAM:
+
+#include<iostream>
+using namespace std;
+
+int main(){
+	int a,b,max;
+	cin>>a>>b;
+	if (a>b)
+		max = a;
+	else
+		if(a==b)
+			max = 0;
+		else
+			max = b;
+
+	cout<<max;
+	return 0;
+}
