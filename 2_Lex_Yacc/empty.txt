@@ -1,0 +1,145 @@
+%{
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+//functions
+void genPIF(char* token, int index);
+int genST(char *token);
+void printST();
+void printPIF();
+
+//variables
+typedef struct{
+    char token[1000];
+    int STcode;
+}PIF;
+
+typedef struct{
+    char token[1000];
+    int index;
+}ST;
+
+int errorFound = 0;
+int lineNo = 1;
+
+ST symbolTable[100];
+int stLength = 0;
+
+PIF pifTable[300];
+int pifLength = 0;
+
+%}
+
+SEPARATOR [;,()\[\]{}]
+
+IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
+
+CONSTANT [0-9]+
+
+WHITESPACE [ \t]+
+
+NEWLINE \n
+
+PREPROCESSOR #[^\n]*
+
+
+%%
+\+ {genPIF(yytext, 0);}
+\- {genPIF(yytext, 0);}
+\* {genPIF(yytext, 0);}
+\/ {genPIF(yytext, 0);}
+\% {genPIF(yytext, 0);}
+\> {genPIF(yytext, 0);}
+\< {genPIF(yytext, 0);}
+\>= {genPIF(yytext, 0);}
+\<= {genPIF(yytext, 0);}
+\== {genPIF(yytext, 0);}
+\= {genPIF(yytext, 0);}
+\!= {genPIF(yytext, 0);}
+
+{IDENTIFIER} {
+        if (strcmp(yytext, "return") != 0 &&
+        strcmp(yytext, "cin") != 0 &&
+        strcmp(yytext, "cout") != 0 &&
+        strcmp(yytext, "else") != 0 &&
+        strcmp(yytext, "namespace") != 0 &&
+        strcmp(yytext, "std") != 0 &&
+        strcmp(yytext, "using") != 0 &&
+        strcmp(yytext, "if") != 0 &&
+        strcmp(yytext, "float") != 0 &&
+        strcmp(yytext, "int") != 0 &&
+        strcmp(yytext, "while") != 0 &&
+        strcmp(yytext, "do") != 0) {
+
+        int index = genST(yytext);
+        genPIF(yytext, index);
+    } else {
+        genPIF(yytext, 0);
+    }     
+}
+
+{PREPROCESSOR} { /* Ignore preprocessor directives */ }
+
+{SEPARATOR} {genPIF(yytext, 0);}
+
+{CONSTANT} {int index = genST(yytext); genPIF(yytext, index);}
+
+{WHITESPACE} {/* Ignore whitespace */}
+
+{NEWLINE} {lineNo++;}
+
+. {errorFound = 1; fprintf(stderr,"Lexical error at line %d: %s\n", lineNo, yytext);}
+%%
+
+
+
+int genST(char* token) {
+    for(int i = 0; i < stLength; i++) {
+        if(strcmp(symbolTable[i].token, token) == 0) {
+            return symbolTable[i].index;
+        }
+    }
+    strcpy(symbolTable[stLength].token, token);
+    symbolTable[stLength].index = stLength;
+    stLength++;
+    return stLength - 1;
+}
+
+
+void genPIF(char* token, int index) {
+    strcpy(pifTable[pifLength].token, token);
+    pifTable[pifLength].STcode = index;
+    pifLength++;
+}
+
+int main(int argc, char **argv) {
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s <input_file>\n", argv[0]);
+        return 1;
+    }
+
+    FILE *fp;
+    fp = fopen(argv[1], "r");
+    yyin = fp; //file pointer
+    yylex();
+    fclose(fp);
+
+    if (errorFound == 0){
+        printf("~~~Symbol Table~~~\n");
+        for(int i = 0 ; i < stLength; i++) {
+            printf(" %s  %d", symbolTable[i].token, symbolTable[i].index);
+            printf("\n");
+        }
+        printf("\n");
+        printf("~~~Program Internal Form~~~\n");
+        for(int i = 0; i < pifLength; i++) {
+            printf(" %s  %d ", pifTable[i].token, pifTable[i].STcode);
+            printf("\n");
+        }
+        printf("\n");
+    }
+
+    return 0;
+
+}
