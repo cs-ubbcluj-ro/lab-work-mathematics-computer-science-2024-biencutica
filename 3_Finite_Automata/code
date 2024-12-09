@@ -1,0 +1,70 @@
+class FiniteAutomaton:
+    def __init__(self, filename):
+        self.states = set()
+        self.alphabet = set()
+        self.transitions = {}
+        self.initial_state = None
+        self.final_states = set()
+        self.load_from_file(filename)
+
+    def load_from_file(self, filename):
+        with open(filename, 'r') as file:
+            lines = [line.strip() for line in file if line.strip()]
+
+        self.states = set(lines[0].split(','))
+        self.alphabet = set(lines[1].split(','))
+
+        self.transitions = {}
+
+        # process transitions
+        for line in lines[2:-2]:  
+            parts = line.split('->')
+
+            left = parts[0].split(',')
+
+            state, symbol = left[0].strip(), left[1].strip()
+            next_state = parts[1].strip()
+
+            if (state, symbol) not in self.transitions:
+                self.transitions[(state, symbol)] = []
+            self.transitions[(state, symbol)].append(next_state)
+        self.initial_state = lines[-2].strip()
+        self.final_states = set(lines[-1].split(','))
+
+        if not self.states or not self.alphabet:
+            raise ValueError("States or alphabet cannot be empty.")
+        if self.initial_state not in self.states:
+            raise ValueError(f"Initial state '{self.initial_state}' is not in states.")
+        if not self.final_states.issubset(self.states):
+            raise ValueError("Some final states are not in states.")
+
+
+    def display(self):
+        print("States:", self.states)
+        print("Alphabet:", self.alphabet)
+        print("Transitions:")
+        for (state, symbol), next_states in self.transitions.items():
+            print(f"  ({state}, {symbol}) -> {next_states}")
+        print("Initial State:", self.initial_state)
+        print("Final States:", self.final_states)
+
+    def is_valid_string(self, string):
+        current_state = self.initial_state
+        for symbol in string:
+            if (current_state, symbol) in self.transitions:
+                current_state = self.transitions[(current_state, symbol)][0]
+            else:
+                return False
+        return current_state in self.final_states
+
+
+if __name__ == "__main__":
+    fa = FiniteAutomaton('FA.in')
+
+    fa.display()
+
+    test_string = input("Enter a string to test: ")
+    if fa.is_valid_string(test_string):
+        print(f"The string '{test_string}' is valid.")
+    else:
+        print(f"The string '{test_string}' is not valid.")
