@@ -1,0 +1,57 @@
+N → Non-terminal symbols, represent categories or abstractions
+
+E → Terminal symbols, represent actual symbols of the language(tokens) :if, else, ;
+
+P → Production rules
+
+S → Start symbol
+
+G={N,E,P,S}
+
+N={"program","headers","main_function","declarations","declaration","structdecl","identifier_list",
+"memberdecls","stmt_list","stmt","simplstmt","assignstmt","expression","term","factor","iostmt",
+"structstmt","ifstmt","whilestmt","condition","RELATION"}
+
+E={"#include","<iostream>","using","namespace","std",";","int","bool","main","(",")","{","}",
+"return","0","struct","IDENTIFIER",",","=","+","*","cin",">>","cout","<<","if","else","while",
+"<","<=","=",">=",">","=="}
+
+S=program
+
+P={
+program -> headers main_function
+headers -> "#include" "<iostream>"
+main_function -> "using" "namespace" "std" ";" "int" "main" "(" ")" "{" declarations stmt_list "return" "0" ";" "}"
+declarations -> declaration | structdecl | declaration declarations | structdecl declarations
+declaration -> "int" identifier_list ";" | "bool" identifier_list ";"
+
+letter → "A" | "B" | ... | "Z" | "a" | "b" | ... | "z"
+
+number → "0" | "1" | ... | "9”
+
+IDENTIFIER → letter | letter IDENTIFIER | letter number 
+
+int → number | number int 
+
+char → letter
+
+string → letter | letter string
+
+letter_list → letter_list letter | letter_list number
+identifier_list -> IDENTIFIER | IDENTIFIER "," identifier_list
+structdecl -> "struct" IDENTIFIER "{" memberdecls "}" ";"
+memberdecls -> declaration | declaration memberdecls
+stmt_list -> stmt ";" | stmt ";" stmt_list
+stmt -> simplstmt | structstmt
+simplstmt -> assignstmt | iostmt
+assignstmt -> IDENTIFIER "=" expression ";"
+expression -> expression "+" term | term
+term -> term "*" factor | factor
+factor -> "(" expression ")" | IDENTIFIER
+iostmt -> "cin" ">>" IDENTIFIER ";" | "cout" "<<" expression ";"
+structstmt -> ifstmt | whilestmt
+ifstmt -> "if" "(" condition ")" stmt "else" stmt |  "if" "(" condition ")" stmt
+whilestmt -> "while" "(" condition ")" stmt
+condition -> expression RELATION expression
+RELATION -> "<" | "<=" | "=" | "==" | ">=" | ">"
+}
